@@ -10,8 +10,8 @@
 <script setup>
 import router from "@/router";
 const keyword = ref(""); // ref - 값이 변경되면 화면이 재렌더링
-const searchStartDate = ref("");
-const searchEndDate = ref("");
+const searchStDate = ref("");
+const searchEdDate = ref("");
 
 //keyword 값이 변경 될 때마다 (state변경) 이하의 함수가 실행된다.
 // watch(keyword, () => {
@@ -22,8 +22,8 @@ const searchEndDate = ref("");
 const handlerSearch = () => {
   const query = [];
   !keyword.value || query.push(`searchTitle=${keyword.value}`);
-  !searchStartDate.value || query.push(`searchStartDate=${searchStartDate.value}`);
-  !searchEndDate.value || query.push(`searchEndDate=${searchEndDate.value}`);
+  !searchStDate.value || query.push(`searchStDate=${searchStDate.value}`);
+  !searchEdDate.value || query.push(`searchEdDate=${searchEdDate.value}`);
   const queryString = query.length > 0 ? `?${query.join("&")}` : ""; //url 뒤에 붙이기위한 string
 
   router.push(queryString);
