@@ -4,14 +4,16 @@
     <input type="date" v-model="searchStartDate" />
     <input type="date" v-model="searchEndDate" />
     <button @click="handlerSearch">검색</button>
-    <button>신규등록</button>
+    <button @click="handlerModal">신규등록</button>
   </div>
 </template>
 <script setup>
+import { useModalStore } from "../../../../stores/modalState";
 import router from "@/router";
 const keyword = ref(""); // ref - 값이 변경되면 화면이 재렌더링
 const searchStDate = ref("");
 const searchEdDate = ref("");
+const modal = useModalStore();
 
 //keyword 값이 변경 될 때마다 (state변경) 이하의 함수가 실행된다.
 // watch(keyword, () => {
@@ -32,6 +34,10 @@ const handlerSearch = () => {
 // 인자로 받는 함수안에 반응형 객체 (ref 같은거)가 있으면, 객체가 변경 도리 때 마다, 해당 함수를 실행 시켜줌
 // 근데 ,  밑에 watchEffect는 ref같은거 없어요. 그래서 그냥 새로고침 누르면 최초에 한번 실행되는 것입니다.
 watchEffect(() => window.location.search && router.push(window.location.posthname, { replace: ture }));
+
+const handlerModal = () => {
+  modal.setModalState();
+};
 </script>
 
 <style lang="scss" scoped>
