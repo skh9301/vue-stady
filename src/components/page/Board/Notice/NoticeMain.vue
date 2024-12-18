@@ -1,12 +1,6 @@
 <template>
   <div class="divNoticeList">
-    <NoticeModal
-      v-if="modal.modalState"
-      @postSuccess="searchList"
-      :idx="noticeIdx"
-      @modalClose="() => (noticeIdx = 0)"
-    />
-    현재 페이지: {{ cPage }} 총 개수: {{ noticeList?.noticeCnt }}
+    현재 페이지: {{ cPage }} 총 개수: {{ noticeList?.noticeCnt || 0 }}
     <table>
       <colgroup>
         <col width="10%" />
@@ -24,16 +18,14 @@
         </tr>
       </thead>
       <tbody>
-        <template v-if="noticeList">
+        <template v-if="isLoading">...로딩중</template>
+        <template v-if="isSuccess">
           <template v-if="noticeList.noticeCnt > 0">
-            <!-- key를 만드는 이유: 고유한 값을 부여해  비효율적인 랜더링을 방지-->
-            <!-- key가 없으면 Vue는 리스트 항목을 재사용하면서 같은 컴포넌트를 계속 재활용하려 합니다. -->
-            <!-- key가 있으면 항목 간 고유 식별자로 작동해, Vue가 정확히 어떤 항목이 추가, 삭제, 또는 재정렬되었는지 알 수 있습니다. -->
-            <tr v-for="notice in noticeList.notice" :key="notice.noticeIdx" @click="handlerModal(notice.noticeIdx)">
-              <td scope="col">{{ notice.noticeIdx }}</td>
-              <td scope="col">{{ notice.title }}</td>
-              <td scope="col">{{ notice.createdDate.substr(0, 10) }}</td>
-              <td scope="col">{{ notice.author }}</td>
+            <tr v-for="notice in noticeList.notice" :key="notice.noticeIdx" @click="handlerDetail(notice.noticeIdx)">
+              <td>{{ notice.noticeIdx }}</td>
+              <td>{{ notice.title }}</td>
+              <td>{{ notice.createdDate.substr(0, 10) }}</td>
+              <td>{{ notice.author }}</td>
             </tr>
           </template>
           <template v-else>
@@ -55,40 +47,22 @@
 </template>
 
 <script setup>
-import axios from "axios";
-import { onMounted } from "vue";
-import { useRoute } from "vue-router";
+import { useRouter } from "vue-router";
 import Pagination from "../../../common/Pagination.vue";
-import { useModalStore } from "../../../../stores/modalState";
+import { useNoticeListSearchQuery } from "../../../../hook/notice/useNoticeListSearchQuery";
 
-const route = useRoute();
-const noticeList = ref();
+const router = useRouter();
 const cPage = ref(1);
-const modal = useModalStore();
-const noticeIdx = ref(0);
+const injectedValue = inject("providedValue");
 
-const searchList = () => {
-  const param = new URLSearchParams({
-    searchTitle: route.query.searchTitle || "",
-    searchStDate: route.query.searchStDate || "",
-    searchEdDate: route.query.searchEdDate || "",
-    currentPage: cPage.value,
-    pageSize: 5,
-  });
-  axios.post("/api/board/noticeListJson.do", param).then((res) => {
-    noticeList.value = res.data;
+const { data: noticeList, isLoading, refetch, isSuccess } = useNoticeListSearchQuery(injectedValue, cPage);
+
+const handlerDetail = (param) => {
+  router.push({
+    name: "noticeDetail",
+    params: { idx: param },
   });
 };
-const handlerModal = (idx) => {
-  noticeIdx.value = idx;
-  modal.setModalState();
-};
-//초기에 화면이 열렸을 때
-//DOM 이 나타날때
-onMounted(() => {
-  searchList();
-});
-watch(route, searchList);
 </script>
 
 <style lang="scss" scoped>

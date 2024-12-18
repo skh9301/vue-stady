@@ -1,7 +1,11 @@
 <template>
   <ContextBox>공지사항</ContextBox>
   <NoticeSearch />
-  <NoticeMain></NoticeMain>
+  <NoticeMain />
 </template>
 
-<script setup></script>
+<script setup>
+const providedValue = ref();
+
+provide("providedValue", providedValue);
+</script>
